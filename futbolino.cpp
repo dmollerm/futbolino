@@ -1,5 +1,4 @@
 #include "futbolino.h"
-#include <stdio.h>
 
 Futbolino::Futbolino(Inputs in, MD_Parola *screenA) {
 	_in = in;
@@ -14,6 +13,7 @@ void Futbolino::loop() {
 
 	Sensors s = readIRSensors();
 	updateScore(s);
+
 	Buttons b = readButtons();
 	updateScore(b);
 
@@ -25,8 +25,6 @@ void Futbolino::loop() {
 	#ifdef _FUTBOLINO_H_DEBUG
 	debug();
 	#endif
-
-	delay(200);
 }
 
 struct Sensors Futbolino::readIRSensors() {
@@ -48,39 +46,53 @@ struct Buttons Futbolino::readButtons() {
 }
 
 void Futbolino::updateScore(Sensors s){
-	updateScore(s.irA, _debounceIrA, _golsB);
-	updateScore(s.irB, _debounceIrB, _golsA);
+	// TODO: Change irA and irB pins and simplify the problem?
+	if (checkDebounce(s.irA, _debounceIrA)){
+		addGoal(_golsB);
+	}
+	if (checkDebounce(s.irB, _debounceIrB)){
+		addGoal(_golsA);
+	}
 }
 
 void Futbolino::updateScore(Buttons b){
-	if (b.plusA && b.minusA && b.plusB && b.minusB){
-		_golsA = 0;
-		_golsB = 0;
+	if (areAllButtonsPressed(b)){
+		resetScore();
 	} else {
-		if (b.plusA) {
+		if (checkDebounce(b.plusA, _debounceButtonPlusA)){
 			addGoal(_golsA);
 		}
-		if (b.minusA) {
+		if (checkDebounce(b.minusA, _debounceButtonMinusA)){
 			addGoal(_golsA, -1);
 		}
-		if (b.plusB) {
+		if (checkDebounce(b.plusB, _debounceButtonPlusB)){
 			addGoal(_golsB);
 		}
-		if (b.minusB) {
+		if (checkDebounce(b.minusB, _debounceButtonMinusB)){
 			addGoal(_golsB, -1);
 		}
 	}
 }
 
-void Futbolino::updateScore(bool &ir, bool &debounce, int &team) {
+bool Futbolino::areAllButtonsPressed(Buttons b){
+	return (b.plusA && b.minusA && b.plusB && b.minusB);
+}
+
+void Futbolino::resetScore(){
+	_golsA = 0;
+	_golsB = 0;
+}
+
+bool Futbolino::checkDebounce(bool &input, bool &debounce){
 	if (!debounce) {
-		if (ir) {
-			addGoal(team);
+		if (input) {
 			debounce = true;
+			return true;
 		}
-	} else if (!ir) {
+	} else if (!input) {
 		debounce = false;
 	}
+	return false;
 }
 
 void Futbolino::addGoal(int &team, int delta){

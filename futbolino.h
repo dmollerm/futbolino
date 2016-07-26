@@ -38,7 +38,9 @@ private:
 	void updateScore(Buttons b);
 	struct Sensors readIRSensors();
 	void updateScore(Sensors s);
-	void updateScore(bool &ir, bool &debounce, int &team);
+	bool checkDebounce(bool &input, bool &debounce);
+	bool areAllButtonsPressed(Buttons b);
+	void resetScore();
 
 	#ifdef _FUTBOLINO_H_DEBUG
 	void debug();
