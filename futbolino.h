@@ -9,6 +9,14 @@
 
 const int IR_THRESHOLD = 300;
 
+enum screen_info
+{
+	SCORE,
+	WIN
+};
+
+const char TXT_WIN[] = "TEAM A WINS! YEAH!";
+
 class Futbolino {
 
 public:
@@ -22,6 +30,8 @@ private:
 	Inputs _in;
 	MD_Parola* _screenA;
 	char _screenBufferA[SCREEN_BUF_SIZE];
+
+	screen_info _actual_info;
 	
 	int _golsA = 0;
 	int _golsB = 0;
@@ -41,6 +51,8 @@ private:
 	bool checkDebounce(bool &input, bool &debounce);
 	bool areAllButtonsPressed(Buttons b);
 	void resetScore();
+
+	void updateScreen();
 
 	#ifdef _FUTBOLINO_H_DEBUG
 	void debug();

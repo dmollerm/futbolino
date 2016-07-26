@@ -6,7 +6,8 @@ Futbolino::Futbolino(Inputs in, MD_Parola *screenA) {
 }
 
 void Futbolino::begin() {
-	_screenA->displayText(_screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+	resetScore();
+	_actual_info = SCORE;
 }
 
 void Futbolino::loop() {
@@ -17,10 +18,7 @@ void Futbolino::loop() {
 	Buttons b = readButtons();
 	updateScore(b);
 
-	// Screen update
-	sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
-	_screenA->displayReset();
-	_screenA->displayAnimate();
+	updateScreen();
 
 	#ifdef _FUTBOLINO_H_DEBUG
 	debug();
@@ -97,6 +95,27 @@ bool Futbolino::checkDebounce(bool &input, bool &debounce){
 
 void Futbolino::addGoal(int &team, int delta){
 	team += delta;
+	// TODO: Proof of concept. Wins with 6, finish with 11
+	if (team == 11){
+		_actual_info = WIN;
+		resetScore();
+	}
+}
+
+void Futbolino::updateScreen(){
+	if (_screenA->displayAnimate()){
+		switch (_actual_info){
+			case SCORE:
+				sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
+				_screenA->displayText(_screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+				break;
+			case WIN:
+				sprintf(_screenBufferA, TXT_WIN);
+				_screenA->displayScroll(_screenBufferA, LEFT, SCROLL_LEFT, 25);
+				_actual_info = SCORE;
+				break;
+		}
+	}
 }
 
 #ifdef _FUTBOLINO_H_DEBUG
