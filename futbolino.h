@@ -2,11 +2,11 @@
 #define _FUTBOLINO_H
 
 #include <MD_Parola.h>
-#include <MD_MAX72xx.h>
-#include <SPI.h>
 #include <my_structs.h>
 
+// #define _FUTBOLINO_H_DEBUG
 #define SCREEN_BUF_SIZE 75
+
 const int IR_THRESHOLD = 300;
 
 class Futbolino {
@@ -32,7 +32,6 @@ private:
 	bool _debounceButtonPlusB = false;
 	bool _debounceButtonMinusB = false;
 
-	void debug();
 	void addGoal(int &team, int delta = 1);
 	void readButton(int &ir, bool &debounce);
 	struct Buttons readButtons();
@@ -40,6 +39,10 @@ private:
 	struct Sensors readIRSensors();
 	void updateScore(Sensors s);
 	void updateScore(bool &ir, bool &debounce, int &team);
+
+	#ifdef _FUTBOLINO_H_DEBUG
+	void debug();
+	#endif
 
 };
 

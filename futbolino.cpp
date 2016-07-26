@@ -10,18 +10,31 @@ void Futbolino::begin() {
 	_screenA->displayText(_screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
 }
 
-void Futbolino::debug() {
-	Serial.print("SCORE A: ");
-	Serial.print(_golsA);
-	Serial.print(" | SCORE B: ");
-	Serial.print(_golsB);
-	Serial.println("");
+void Futbolino::loop() {
+
+	Sensors s = readIRSensors();
+	updateScore(s);
+	Buttons b = readButtons();
+	updateScore(b);
+
+	// Screen update
 	sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
 	_screenA->displayReset();
+	_screenA->displayAnimate();
+
+	#ifdef _FUTBOLINO_H_DEBUG
+	debug();
+	#endif
+
+	delay(200);
 }
 
-void Futbolino::addGoal(int &team, int delta){
-	team += delta;
+struct Sensors Futbolino::readIRSensors() {
+	bool irA = analogRead(_in.PIN_IR_A) > IR_THRESHOLD;
+	bool irB = analogRead(_in.PIN_IR_B) > IR_THRESHOLD;
+
+	Sensors s = {irA, irB};
+	return s;
 }
 
 struct Buttons Futbolino::readButtons() {
@@ -32,6 +45,11 @@ struct Buttons Futbolino::readButtons() {
 
 	Buttons b = {plusA, minusA, plusB, minusB};
 	return b;
+}
+
+void Futbolino::updateScore(Sensors s){
+	updateScore(s.irA, _debounceIrA, _golsB);
+	updateScore(s.irB, _debounceIrB, _golsA);
 }
 
 void Futbolino::updateScore(Buttons b){
@@ -54,40 +72,30 @@ void Futbolino::updateScore(Buttons b){
 	}
 }
 
-struct Sensors Futbolino::readIRSensors() {
-	bool irA = analogRead(_in.PIN_IR_A) > IR_THRESHOLD;
-	bool irB = analogRead(_in.PIN_IR_B) > IR_THRESHOLD;
-
-	Sensors s = {irA, irB};
-	return s;
-}
-
-void Futbolino::updateScore(Sensors s){
-	updateScore(s.irA, _debounceIrA, _golsB);
-	updateScore(s.irB, _debounceIrB, _golsA);
-}
-
 void Futbolino::updateScore(bool &ir, bool &debounce, int &team) {
 	if (!debounce) {
-	if (ir) {
-		addGoal(team);
-		debounce = true;
-	}
+		if (ir) {
+			addGoal(team);
+			debounce = true;
+		}
 	} else if (!ir) {
 		debounce = false;
 	}
 }
 
-void Futbolino::loop() {
-
-	Sensors s = readIRSensors();
-	updateScore(s);
-	Buttons b = readButtons();
-	updateScore(b);
-
-	debug();
-
-	// Screen update
-	_screenA->displayAnimate();
-	delay(200);
+void Futbolino::addGoal(int &team, int delta){
+	team += delta;
 }
+
+#ifdef _FUTBOLINO_H_DEBUG
+void Futbolino::debug() {
+	Serial.print("SCORE A: ");
+	Serial.print(_golsA);
+	Serial.print(" | SCORE B: ");
+	Serial.print(_golsB);
+	Serial.println("");
+}
+#endif
+
+
+
