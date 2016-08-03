@@ -20,7 +20,7 @@ const char TXT_WIN[] = "TEAM A WINS! YEAH!";
 class Futbolino {
 
 public:
-	Futbolino(Inputs in, MD_Parola *screenA);
+	Futbolino(Inputs in, MD_Parola *screen);
 
 	void begin();
 	void loop();
@@ -28,8 +28,9 @@ public:
 private:
 
 	Inputs _in;
-	MD_Parola* _screenA;
+	MD_Parola* _screen;
 	char _screenBufferA[SCREEN_BUF_SIZE];
+	char _screenBufferB[SCREEN_BUF_SIZE];
 
 	screen_info _actual_info;
 	

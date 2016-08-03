@@ -1,8 +1,8 @@
 #include "futbolino.h"
 
-Futbolino::Futbolino(Inputs in, MD_Parola *screenA) {
+Futbolino::Futbolino(Inputs in, MD_Parola *screen) {
 	_in = in;
-	_screenA = screenA;
+	_screen = screen;
 }
 
 void Futbolino::begin() {
@@ -103,19 +103,23 @@ void Futbolino::addGoal(int &team, int delta){
 }
 
 void Futbolino::updateScreen(){
-	if (_screenA->displayAnimate()){
+	if (_screen->displayAnimate()){
 		switch (_actual_info){
 			case SCORE:
 				sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
-				_screenA->displayText(_screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+				sprintf(_screenBufferB, "%d - %d", _golsB, _golsA);
+				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+				_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, PRINT, NO_EFFECT);
 				break;
 			case WIN:
 				sprintf(_screenBufferA, TXT_WIN);
-				_screenA->displayScroll(_screenBufferA, LEFT, SCROLL_LEFT, 25);
+				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+				_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
 				_actual_info = SCORE;
 				break;
 		}
 	}
+	
 }
 
 #ifdef _FUTBOLINO_H_DEBUG
