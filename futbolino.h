@@ -4,18 +4,29 @@
 #include <MD_Parola.h>
 #include <my_structs.h>
 
-// #define _FUTBOLINO_H_DEBUG
+#define _FUTBOLINO_H_DEBUG
 #define SCREEN_BUF_SIZE 75
 
 const int IR_THRESHOLD = 300;
 
-enum screen_info
+enum GameState
 {
-	SCORE,
+	SERVE,
+	PLAY,
 	WIN
 };
 
+enum Team
+{
+	UNDEFINED,
+	A,
+	B
+};
+
 const char TXT_WIN[] = "TEAM A WINS! YEAH!";
+const char TXT_SERVE[] = "Saque";
+const char TXT_CONGRATS[] = "Enhorabona";
+const char TXT_CALM_SERVE[] = "Tranqui, és pel saque";
 
 class Futbolino {
 
@@ -32,7 +43,8 @@ private:
 	char _screenBufferA[SCREEN_BUF_SIZE];
 	char _screenBufferB[SCREEN_BUF_SIZE];
 
-	screen_info _actual_info;
+	GameState _currentState;
+	Team _lastScored;
 	
 	int _golsA = 0;
 	int _golsB = 0;
@@ -46,6 +58,7 @@ private:
 	void addGoal(int &team, int delta = 1);
 	void readButton(int &ir, bool &debounce);
 	struct Buttons readButtons();
+	void chooseServerTeam(Sensors s, Buttons b);
 	void updateScore(Buttons b);
 	struct Sensors readIRSensors();
 	void updateScore(Sensors s);

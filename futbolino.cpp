@@ -7,22 +7,45 @@ Futbolino::Futbolino(Inputs in, MD_Parola *screen) {
 
 void Futbolino::begin() {
 	resetScore();
-	_actual_info = SCORE;
+	_currentState = SERVE;
+	_lastScored = UNDEFINED;
 }
 
 void Futbolino::loop() {
 
 	Sensors s = readIRSensors();
-	updateScore(s);
-
 	Buttons b = readButtons();
-	updateScore(b);
+
+	switch (_currentState){
+		case SERVE:
+			chooseServerTeam(s, b);
+			break;
+		case PLAY:
+			updateScore(s);
+			updateScore(b);
+			break;
+		case WIN:
+			break;
+	}
 
 	updateScreen();
 
 	#ifdef _FUTBOLINO_H_DEBUG
 	debug();
 	#endif
+}
+
+void Futbolino::chooseServerTeam(Sensors s, Buttons b){
+
+	if (checkDebounce(s.irA, _debounceIrA) ||
+			checkDebounce(b.plusA, _debounceButtonPlusA)) {
+		_lastScored = A;
+		_currentState = PLAY;
+	} else if (checkDebounce(s.irB, _debounceIrB) ||
+			checkDebounce(b.plusB, _debounceButtonPlusB)) {
+		_lastScored = B;
+		_currentState = PLAY;
+	}
 }
 
 struct Sensors Futbolino::readIRSensors() {
@@ -55,7 +78,7 @@ void Futbolino::updateScore(Sensors s){
 
 void Futbolino::updateScore(Buttons b){
 	if (areAllButtonsPressed(b)){
-		resetScore();
+		begin();
 	} else {
 		if (checkDebounce(b.plusA, _debounceButtonPlusA)){
 			addGoal(_golsA);
@@ -97,15 +120,20 @@ void Futbolino::addGoal(int &team, int delta){
 	team += delta;
 	// TODO: Proof of concept. Wins with 6, finish with 11
 	if (team == 11){
-		_actual_info = WIN;
+		_currentState = WIN;
 		resetScore();
 	}
 }
 
 void Futbolino::updateScreen(){
 	if (_screen->displayAnimate()){
-		switch (_actual_info){
-			case SCORE:
+		switch (_currentState){
+			case SERVE:
+				sprintf(_screenBufferA, TXT_SERVE);
+				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+				_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+				break;
+			case PLAY:
 				sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
 				sprintf(_screenBufferB, "%d - %d", _golsB, _golsA);
 				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
@@ -115,7 +143,7 @@ void Futbolino::updateScreen(){
 				sprintf(_screenBufferA, TXT_WIN);
 				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
 				_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-				_actual_info = SCORE;
+				_currentState = SERVE;
 				break;
 		}
 	}
