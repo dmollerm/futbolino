@@ -114,8 +114,10 @@ bool Futbolino::checkDebounce(bool &input, bool &debounce){
 }
 
 void Futbolino::addGoal(int &team, int delta){
-	team += delta;
-	_breakAnimation = true;
+	if (team + delta >= 0) {
+		team += delta;
+		_breakAnimation = true;
+	} 
 	DEBUG(__FUNCTION__);
 }
 
