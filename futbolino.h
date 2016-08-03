@@ -46,6 +46,7 @@ private:
 	GameState _currentState;
 	Team _lastScored;
 	
+	bool _breakAnimation = false;
 	int _golsA = 0;
 	int _golsB = 0;
 	bool _debounceIrA = false;

@@ -118,6 +118,7 @@ bool Futbolino::checkDebounce(bool &input, bool &debounce){
 
 void Futbolino::addGoal(int &team, int delta){
 	team += delta;
+	_breakAnimation = true;
 	// TODO: Proof of concept. Wins with 6, finish with 11
 	if (team == 11){
 		_currentState = WIN;
@@ -126,7 +127,8 @@ void Futbolino::addGoal(int &team, int delta){
 }
 
 void Futbolino::updateScreen(){
-	if (_screen->displayAnimate()){
+	if (_screen->displayAnimate() || _breakAnimation) {
+		_breakAnimation = false;
 		switch (_currentState){
 			case SERVE:
 				sprintf(_screenBufferA, TXT_SERVE);
@@ -134,10 +136,17 @@ void Futbolino::updateScreen(){
 				_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
 				break;
 			case PLAY:
-				sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
-				sprintf(_screenBufferB, "%d - %d", _golsB, _golsA);
-				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
-				_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, PRINT, NO_EFFECT);
+				if (_golsA == 0 && _golsB == 0) {
+					sprintf(_screenBufferA, TXT_CONGRATS);
+					sprintf(_screenBufferB, TXT_CALM_SERVE);
+					_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+					_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+				} else {
+					sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
+					sprintf(_screenBufferB, "%d - %d", _golsB, _golsA);
+					_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+					_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, PRINT, NO_EFFECT);
+				}
 				break;
 			case WIN:
 				sprintf(_screenBufferA, TXT_WIN);
