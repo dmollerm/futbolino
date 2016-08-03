@@ -5,6 +5,12 @@
 #include <my_structs.h>
 
 #define _FUTBOLINO_H_DEBUG
+#ifdef _FUTBOLINO_H_DEBUG
+#define DEBUG(A) Serial.println(A)
+#else
+#define DEBUG(A)
+#endif
+
 #define SCREEN_BUF_SIZE 75
 
 const int IR_THRESHOLD = 300;
@@ -67,11 +73,8 @@ private:
 	bool areAllButtonsPressed(Buttons b);
 	void resetScore();
 
+	void manageStates();
 	void updateScreen();
-
-	#ifdef _FUTBOLINO_H_DEBUG
-	void debug();
-	#endif
 
 };
 

@@ -26,25 +26,22 @@ void Futbolino::loop() {
 			break;
 		case WIN:
 			break;
+		default:
+			;
 	}
 
 	updateScreen();
-
-	#ifdef _FUTBOLINO_H_DEBUG
-	debug();
-	#endif
 }
 
 void Futbolino::chooseServerTeam(Sensors s, Buttons b){
-
 	if (checkDebounce(s.irA, _debounceIrA) ||
 			checkDebounce(b.plusA, _debounceButtonPlusA)) {
+		DEBUG("team A scored");
 		_lastScored = A;
-		_currentState = PLAY;
 	} else if (checkDebounce(s.irB, _debounceIrB) ||
 			checkDebounce(b.plusB, _debounceButtonPlusB)) {
 		_lastScored = B;
-		_currentState = PLAY;
+		DEBUG("team B scored");
 	}
 }
 
@@ -119,55 +116,71 @@ bool Futbolino::checkDebounce(bool &input, bool &debounce){
 void Futbolino::addGoal(int &team, int delta){
 	team += delta;
 	_breakAnimation = true;
-	// TODO: Proof of concept. Wins with 6, finish with 11
-	if (team == 11){
-		_currentState = WIN;
-		resetScore();
+	DEBUG(__FUNCTION__);
+}
+
+void Futbolino::manageStates() {
+	switch (_currentState){
+		case SERVE:
+			if (_lastScored != UNDEFINED) {
+				DEBUG(__FUNCTION__);
+				_currentState = PLAY;
+			}
+			break;
+		case PLAY:
+			// TODO: Proof of concept. Wins with 6, finish with 11
+			if (_golsB + _golsA == 11) {
+				_currentState = WIN;
+			}
+			break;
+		case WIN:
+			begin();
+			break;
+		default:
+			;
 	}
 }
 
 void Futbolino::updateScreen(){
 	if (_screen->displayAnimate() || _breakAnimation) {
+		DEBUG(__FUNCTION__);
 		_breakAnimation = false;
 		switch (_currentState){
 			case SERVE:
-				sprintf(_screenBufferA, TXT_SERVE);
-				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
-				_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+				switch (_lastScored) {
+					case UNDEFINED:
+						sprintf(_screenBufferA, TXT_SERVE);
+						_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+						_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+						break;
+					case A:
+						sprintf(_screenBufferA, TXT_CONGRATS);
+						sprintf(_screenBufferB, TXT_CALM_SERVE);
+						_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+						_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+						break;
+					case B:
+						sprintf(_screenBufferA, TXT_CALM_SERVE);
+						sprintf(_screenBufferB, TXT_CONGRATS);
+						_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+						_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+						break;
+				}
 				break;
 			case PLAY:
-				if (_golsA == 0 && _golsB == 0) {
-					sprintf(_screenBufferA, TXT_CONGRATS);
-					sprintf(_screenBufferB, TXT_CALM_SERVE);
-					_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-					_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-				} else {
-					sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
-					sprintf(_screenBufferB, "%d - %d", _golsB, _golsA);
-					_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
-					_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, PRINT, NO_EFFECT);
-				}
+				sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
+				sprintf(_screenBufferB, "%d - %d", _golsB, _golsA);
+				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
+				_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, PRINT, NO_EFFECT);
 				break;
 			case WIN:
 				sprintf(_screenBufferA, TXT_WIN);
 				_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
 				_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-				_currentState = SERVE;
 				break;
+			default:
+				;
 		}
+		manageStates();
 	}
-	
 }
-
-#ifdef _FUTBOLINO_H_DEBUG
-void Futbolino::debug() {
-	Serial.print("SCORE A: ");
-	Serial.print(_golsA);
-	Serial.print(" | SCORE B: ");
-	Serial.print(_golsB);
-	Serial.println("");
-}
-#endif
-
-
-
