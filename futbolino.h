@@ -3,6 +3,7 @@
 
 #include <MD_Parola.h>
 #include <my_structs.h>
+#include <futbolino_screen.h>
 
 #define _FUTBOLINO_H_DEBUG
 #ifdef _FUTBOLINO_H_DEBUG
@@ -34,6 +35,8 @@ const char TXT_SERVE[] = "Saque";
 const char TXT_CONGRATS[] = "Enhorabona";
 const char TXT_CALM_SERVE[] = "Tranqui, és pel saque";
 
+void callbackRestart();
+
 class Futbolino {
 
 public:
@@ -48,6 +51,9 @@ private:
 	MD_Parola* _screen;
 	char _screenBufferA[SCREEN_BUF_SIZE];
 	char _screenBufferB[SCREEN_BUF_SIZE];
+
+	FutbolinoScreen* _screenA;
+	FutbolinoScreen* _screenB;
 
 	GameState _currentState;
 	Team _lastScored;
