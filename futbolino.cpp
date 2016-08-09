@@ -46,8 +46,11 @@ void Futbolino::chooseServerTeam(Sensors s, Buttons b){
 }
 
 struct Sensors Futbolino::readIRSensors() {
-	bool irA = analogRead(_in.PIN_IR_A) > IR_THRESHOLD;
-	bool irB = analogRead(_in.PIN_IR_B) > IR_THRESHOLD;
+	// IR SENSORS ARE TEMPORALLY DISABLED, AND ARE ALWAYS OFF
+	// bool irA = analogRead(_in.PIN_IR_A) > IR_THRESHOLD;
+	// bool irB = analogRead(_in.PIN_IR_B) > IR_THRESHOLD;
+	bool irA = false;
+	bool irB = false;
 
 	Sensors s = {irA, irB};
 	return s;

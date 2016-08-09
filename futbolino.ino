@@ -38,8 +38,10 @@ void setup() {
   pinMode(in.PIN_TEAM_A_MINUS, INPUT);
   pinMode(in.PIN_TEAM_B_PLUS,  INPUT);
   pinMode(in.PIN_TEAM_B_MINUS, INPUT);
-  pinMode(in.PIN_IR_A,         INPUT);
-  pinMode(in.PIN_IR_B,         INPUT);
+
+  // IR SENSORS ARE TEMPORALLY DISABLED
+  // pinMode(in.PIN_IR_A,         INPUT);
+  // pinMode(in.PIN_IR_B,         INPUT);
 
   // Screen setup
   SCREEN.begin(TOTAL_SCREENS);
