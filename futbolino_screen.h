@@ -11,12 +11,14 @@
 #endif
 
 #define SCORE_BUF_SIZE 7
+#define ANIMATION_SPEED 30
 
 class FutbolinoScreen {
 
 public:
 	FutbolinoScreen(MD_Parola *screen, int zone);
 
+	void begin();
 	void update(bool animationFinished);
 	void setStaticText(char* text);
 	void setAnimation(char* text);

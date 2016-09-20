@@ -3,7 +3,12 @@
 FutbolinoScreen::FutbolinoScreen(MD_Parola *screen, int zone) {
 	_screen = screen;
 	_zone = zone;
+	begin();
+}
+
+void FutbolinoScreen::begin(){
 	_animating = false;
+	_next_callback = 0;
 	sprintf(_score_buffer, "0 - 0");
 }
 
@@ -25,13 +30,12 @@ void FutbolinoScreen::setStaticText(char* text){
 
 void FutbolinoScreen::setAnimation(char* text){
 	_animating = true;
-	_screen->displayZoneText(_zone, text, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
+	_screen->displayZoneText(_zone, text, CENTER, ANIMATION_SPEED, 0, SCROLL_LEFT, SCROLL_LEFT);
 }
 
 void FutbolinoScreen::setAnimation(char* text, void (*function)()){
-	_animating = true;
-	_screen->displayZoneText(_zone, text, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
 	_next_callback = function;
+	setAnimation(text);
 }
 
 void FutbolinoScreen::_showScore(){

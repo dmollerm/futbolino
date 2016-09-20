@@ -13,6 +13,9 @@ void Futbolino::begin() {
 	_currentState = SERVE;
 	_lastScored = UNDEFINED;
 
+	_screenA->begin();
+	_screenB->begin();
+
 	_screenA->setStaticText((char*)TXT_SERVE);
 	_screenB->setStaticText((char*)TXT_SERVE);
 }
@@ -32,12 +35,13 @@ void Futbolino::loop() {
 			break;
 		case WIN:
 			break;
+		case END:
+			break;
 		default:
 			;
 	}
 
 	updateScreen();
-	// manageStates();
 }
 
 void Futbolino::chooseServerTeam(Sensors s, Buttons b){
@@ -45,15 +49,15 @@ void Futbolino::chooseServerTeam(Sensors s, Buttons b){
 			checkDebounce(b.plusA, _debounceButtonPlusA)) {
 		DEBUG("team A scored");
 		_lastScored = A;
-		_screenA->setAnimation((char*)TXT_CONGRATS);
-		_screenB->setAnimation((char*)TXT_CALM_SERVE);
+		_screenA->setAnimation((char*)TXT_FIRSTBALL);
+		_screenB->showScore(0, 0);
 		_currentState = PLAY;
 	} else if (checkDebounce(s.irB, _debounceIrB) ||
 			checkDebounce(b.plusB, _debounceButtonPlusB)) {
 		DEBUG("team B scored");
 		_lastScored = B;
-		_screenA->setAnimation((char*)TXT_CALM_SERVE);
-		_screenB->setAnimation((char*)TXT_CONGRATS);
+		_screenB->setAnimation((char*)TXT_FIRSTBALL);
+		_screenA->showScore(0, 0);
 		_currentState = PLAY;
 	}
 }
@@ -136,9 +140,9 @@ void Futbolino::addGoal(int &team, int delta){
 	}
 
 	if (_golsB + _golsA == 11) {
-		_currentState = WIN;
-		_screenA->setAnimation((char*)TXT_WIN, callbackRestart);
-		_screenB->setAnimation((char*)TXT_WIN);
+		_currentState = END;
+		_screenA->setAnimation((char*)TXT_END, callbackRestart);
+		_screenB->setAnimation((char*)TXT_END);
 	} else {
 		_screenA->showScore(_golsA, _golsB);
 		_screenB->showScore(_golsB, _golsA);
@@ -146,77 +150,10 @@ void Futbolino::addGoal(int &team, int delta){
 
 }
 
-// void Futbolino::manageStates() {
-// 	switch (_currentState){
-// 		case SERVE:
-// 			if (_lastScored != UNDEFINED) {
-// 				DEBUG(__FUNCTION__);
-// 				_currentState = PLAY;
-// 			}
-// 			break;
-// 		case PLAY:
-// 			// TODO: Proof of concept. Wins with 6, finish with 11
-// 			if (_golsB + _golsA == 11) {
-// 				_currentState = WIN;
-// 			}
-// 			break;
-// 		case WIN:
-// 			begin();
-// 			break;
-// 		default:
-// 			;
-// 	}
-// }
-
 void Futbolino::updateScreen(){
 	bool animationFinished = _screen->displayAnimate();
 	_screenA->update(animationFinished);
 	_screenB->update(animationFinished);
-
-
-	// if (_screen->displayAnimate() || _breakAnimation) {
-	// 	DEBUG(__FUNCTION__);
-	// 	_breakAnimation = false;
-	// 	switch (_currentState){
-	// 		case SERVE:
-	// 			switch (_lastScored) {
-	// 				case UNDEFINED:
-	// 					sprintf(_screenBufferA, TXT_SERVE);
-	// 					_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
-	// 					_screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
-	// 					break;
-	// 				case A:
-	// 					sprintf(_screenBufferA, TXT_CONGRATS);
-	// 					sprintf(_screenBufferB, TXT_CALM_SERVE);
-	// 					_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-	// 					_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-	// 					break;
-	// 				case B:
-	// 					sprintf(_screenBufferA, TXT_CALM_SERVE);
-	// 					sprintf(_screenBufferB, TXT_CONGRATS);
-	// 					_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-	// 					_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-	// 					break;
-	// 			}
-	// 			break;
-	// 		case PLAY:
-	// 			sprintf(_screenBufferA, "%d - %d", _golsA, _golsB);
-	// 			sprintf(_screenBufferB, "%d - %d", _golsB, _golsA);
-	// 			_screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, PRINT, NO_EFFECT);
-	// 			_screen->displayZoneText(1, _screenBufferB, CENTER, 0, 0, PRINT, NO_EFFECT);
-	// 			break;
-	// 		case WIN:
-	// 			// sprintf(_screenBufferA, TXT_WIN);
-	// 			// _screen->displayZoneText(0, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-	// 			// _screen->displayZoneText(1, _screenBufferA, CENTER, 0, 0, SCROLL_LEFT, SCROLL_LEFT);
-	// 			_screenA->setAnimation((char*)TXT_WIN);
-	// 			_screenB->setAnimation((char*)TXT_WIN);
-	// 			break;
-	// 		default:
-	// 			;
-	// 	}
-	// 	manageStates();
-	// }
 }
 
 extern Futbolino futbolino;

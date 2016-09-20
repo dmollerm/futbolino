@@ -20,7 +20,8 @@ enum GameState
 {
 	SERVE,
 	PLAY,
-	WIN
+	WIN,
+	END
 };
 
 enum Team
@@ -30,10 +31,10 @@ enum Team
 	B
 };
 
+const char TXT_END[] = "Final de partit. Verds guanyen!";
 const char TXT_WIN[] = "TEAM A WINS! YEAH!";
 const char TXT_SERVE[] = "Saque";
-const char TXT_CONGRATS[] = "Enhorabona";
-const char TXT_CALM_SERVE[] = "Tranqui, és pel saque";
+const char TXT_FIRSTBALL[] = "Verds saquen";
 
 void callbackRestart();
 
