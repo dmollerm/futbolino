@@ -49,14 +49,14 @@ void Futbolino::chooseServerTeam(Sensors s, Buttons b){
 			checkDebounce(b.plusA, _debounceButtonPlusA)) {
 		DEBUG("team A scored");
 		_lastScored = A;
-		_screenA->setAnimation((char*)TXT_FIRSTBALL);
+		_screenA->setAnimation((char*)TXT_FIRSTBALL_A);
 		_screenB->showScore(0, 0);
 		_currentState = PLAY;
 	} else if (checkDebounce(s.irB, _debounceIrB) ||
 			checkDebounce(b.plusB, _debounceButtonPlusB)) {
 		DEBUG("team B scored");
 		_lastScored = B;
-		_screenB->setAnimation((char*)TXT_FIRSTBALL);
+		_screenB->setAnimation((char*)TXT_FIRSTBALL_B);
 		_screenA->showScore(0, 0);
 		_currentState = PLAY;
 	}
@@ -141,8 +141,15 @@ void Futbolino::addGoal(int &team, int delta){
 
 	if (_golsB + _golsA == 11) {
 		_currentState = END;
-		_screenA->setAnimation((char*)TXT_END, callbackRestart);
-		_screenB->setAnimation((char*)TXT_END);
+		
+		char* end;
+		if (_golsA > _golsB)
+			end = (char*)TXT_END_A;
+		else
+			end = (char*)TXT_END_B;
+
+		_screenA->setAnimation(end, callbackRestart);
+		_screenB->setAnimation(end);
 	} else {
 		_screenA->showScore(_golsA, _golsB);
 		_screenB->showScore(_golsB, _golsA);
