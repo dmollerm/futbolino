@@ -1,5 +1,7 @@
 #include "futbolino.h"
 
+char* goal_texts[] = {"Gas", "Bo", "100", "Dins", "Inside", "Mel", "Nyam", "Oju!"};
+
 Futbolino::Futbolino(Inputs in, MD_Parola *screen) {
 	_in = in;
 	_screen = screen;
@@ -30,8 +32,8 @@ void Futbolino::loop() {
 			chooseServerTeam(s, b);
 			break;
 		case PLAY:
-			updateScore(s);
-			updateScore(b);
+			updateFrom(s);
+			updateFrom(b);
 			break;
 		case WIN:
 			break;
@@ -83,31 +85,31 @@ struct Buttons Futbolino::readButtons() {
 	return b;
 }
 
-void Futbolino::updateScore(Sensors s){
+void Futbolino::updateFrom(Sensors s){
 	// TODO: Change irA and irB pins and simplify the problem?
 	if (checkDebounce(s.irA, _debounceIrA)){
-		addGoal(_golsB);
+		addGoalB();
 	}
 	if (checkDebounce(s.irB, _debounceIrB)){
-		addGoal(_golsA);
+		addGoalA();
 	}
 }
 
-void Futbolino::updateScore(Buttons b){
+void Futbolino::updateFrom(Buttons b){
 	if (areAllButtonsPressed(b)){
 		begin();
 	} else {
 		if (checkDebounce(b.plusA, _debounceButtonPlusA)){
-			addGoal(_golsA);
+			addGoalA();
 		}
 		if (checkDebounce(b.minusA, _debounceButtonMinusA)){
-			addGoal(_golsA, -1);
+			subGoalA();
 		}
 		if (checkDebounce(b.plusB, _debounceButtonPlusB)){
-			addGoal(_golsB);
+			addGoalB();
 		}
 		if (checkDebounce(b.minusB, _debounceButtonMinusB)){
-			addGoal(_golsB, -1);
+			subGoalB();
 		}
 	}
 }
@@ -133,15 +135,32 @@ bool Futbolino::checkDebounce(bool &input, bool &debounce){
 	return false;
 }
 
-void Futbolino::addGoal(int &team, int delta){
-	if (team + delta >= 0 && _currentState == PLAY) {
-		team += delta;
-		_breakAnimation = true;
-	}
+void Futbolino::addGoalA(){
+	changeScore(_golsA);
+	_lastScored = A;
+	manageScoreIncrement();
+}
 
+void Futbolino::addGoalB(){
+	changeScore(_golsB);
+	_lastScored = B;
+	manageScoreIncrement();
+}
+
+void Futbolino::subGoalA(){
+	changeScore(_golsA, -1);
+	showScoreInScreens();
+}
+
+void Futbolino::subGoalB(){
+	changeScore(_golsB, -1);
+	showScoreInScreens();
+}
+
+void Futbolino::manageScoreIncrement(){
 	if (_golsB + _golsA == 11) {
 		_currentState = END;
-		
+
 		char* end;
 		if (_golsA > _golsB)
 			end = (char*)TXT_END_A;
@@ -151,10 +170,30 @@ void Futbolino::addGoal(int &team, int delta){
 		_screenA->setAnimation(end, callbackRestart);
 		_screenB->setAnimation(end);
 	} else {
-		_screenA->showScore(_golsA, _golsB);
-		_screenB->showScore(_golsB, _golsA);
-	}
+		showScoreInScreens();
 
+		char* txt;
+		long rand = random(0,20);
+		if (rand < 8){
+			txt = goal_texts[rand];
+			if (_lastScored == A){
+				_screenA->setShortAnimation(txt);
+			} else {
+				_screenB->setShortAnimation(txt);
+			}
+		}
+	}
+}
+
+void Futbolino::showScoreInScreens(){
+	_screenA->showScore(_golsA, _golsB);
+	_screenB->showScore(_golsB, _golsA);
+}
+
+void Futbolino::changeScore(int &team, int delta){
+	if (team + delta >= 0 && _currentState == PLAY) {
+		team += delta;
+	}
 }
 
 void Futbolino::updateScreen(){

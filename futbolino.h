@@ -60,7 +60,6 @@ private:
 	GameState _currentState;
 	Team _lastScored;
 	
-	bool _breakAnimation = false;
 	int _golsA = 0;
 	int _golsB = 0;
 	bool _debounceIrA = false;
@@ -70,18 +69,23 @@ private:
 	bool _debounceButtonPlusB = false;
 	bool _debounceButtonMinusB = false;
 
-	void addGoal(int &team, int delta = 1);
+	void addGoalA();
+	void addGoalB();
+	void subGoalA();
+	void subGoalB();
+	void manageScoreIncrement();
+	void showScoreInScreens();
+	void changeScore(int &team, int delta = 1);
 	void readButton(int &ir, bool &debounce);
 	struct Buttons readButtons();
 	void chooseServerTeam(Sensors s, Buttons b);
-	void updateScore(Buttons b);
+	void updateFrom(Buttons b);
 	struct Sensors readIRSensors();
-	void updateScore(Sensors s);
+	void updateFrom(Sensors s);
 	bool checkDebounce(bool &input, bool &debounce);
 	bool areAllButtonsPressed(Buttons b);
 	void resetScore();
 
-	void manageStates();
 	void updateScreen();
 
 };
